@@ -2,12 +2,9 @@ name: Deploy to Google Cloud Functions
 
 on:
   push:
+    branches: [ "main", "priyanshi" ]
+  pull_request:
     branches: [ "main" ]
-
-env:
-  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-  REGION: asia-south1
-  FUNCTION_NAME: git-fp-function-test
 
 jobs:
   deploy:
@@ -23,25 +20,33 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.10'
+
+
     - name: Install dependencies
       run: |
         python -m venv venv
-        . venv/bin/activate
+        source venv/bin/activate
+        python -m pip install --upgrade pip
         pip install -r requirements.txt
 
     - name: Run tests
       run: |
-        . venv/bin/activate
+        source venv/bin/activate
         pytest
+      shell: bash
 
     - name: Lint code
       run: |
-        . venv/bin/activate
+        source venv/bin/activate
         flake8 .
 
     - name: Security scan
       run: |
-        . venv/bin/activate
+        source venv/bin/activate
         bandit -r .
 
     - id: 'auth'
@@ -61,6 +66,7 @@ jobs:
 
     - name: Deploy to Cloud Functions
       run: |-
+        source venv/bin/activate
         gcloud functions deploy ${{ env.FUNCTION_NAME }} \
           --region=${{ env.REGION }} \
           --entry-point=main \
@@ -70,6 +76,12 @@ jobs:
           --allow-unauthenticated \
           --source=. \
           --memory=2000MB
+
+      env:
+          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+          REGION: ${{ secrets.GCP_REGION }}
+          FUNCTION_NAME: ${{ secrets.GCP_FUNCTION_NAME }}
+          GCP_SERVICE_ACCOUNT_KEY: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
 
     # - name: Notify
     #   if: success()
