@@ -6,11 +6,6 @@ on:
   pull_request:
     branches: [ "main" ]
 
-env:
-  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-  REGION: asia-south1
-  FUNCTION_NAME: git-fp-function-test
-
 jobs:
   deploy:
     name: Deploy to Google Cloud Functions
@@ -84,8 +79,8 @@ jobs:
 
       env:
           GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-          REGION: ${{ secrets.REGION }}
-          FUNCTION_NAME: ${{ secrets.FUNCTION_NAME }}
+          REGION: ${{ secrets.GCP_REGION }}
+          FUNCTION_NAME: ${{ secrets.GCP_FUNCTION_NAME }}
           GCP_SERVICE_ACCOUNT_KEY: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
 
     # - name: Notify
