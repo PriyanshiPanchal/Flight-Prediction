@@ -1,0 +1,88 @@
+name: Deploy to Google Cloud Functions
+
+on:
+  push:
+    branches: [ "main" ]
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  REGION: asia-south1
+  FUNCTION_NAME: git-fp-function-test
+
+jobs:
+  deploy:
+    name: Deploy to Google Cloud Functions
+    runs-on: ubuntu-latest
+    environment: production
+
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        python -m venv venv
+        . venv/bin/activate
+        pip install -r requirements.txt
+
+    - name: Run tests
+      run: |
+        . venv/bin/activate
+        pytest
+
+    - name: Lint code
+      run: |
+        . venv/bin/activate
+        flake8 .
+
+    - name: Security scan
+      run: |
+        . venv/bin/activate
+        bandit -r .
+
+    - id: 'auth'
+      name: 'Authenticate to Google Cloud'
+      uses: 'google-github-actions/auth@v0'
+      with:
+        token_format: 'access_token'
+        workload_identity_provider: 'projects/123456789/locations/global/workloadIdentityPools/my-pool/providers/my-provider'
+        service_account: 'my-service-account@my-project.iam.gserviceaccount.com'
+
+
+    - name: Set up gcloud CLI
+      uses: google-github-actions/setup-gcloud@v1
+      with:
+        project_id: ${{ env.PROJECT_ID }}
+        service_account_key: ${{ secrets.GCP_SA_KEY }}
+
+    - name: Deploy to Cloud Functions
+      run: |-
+        gcloud functions deploy ${{ env.FUNCTION_NAME }} \
+          --region=${{ env.REGION }} \
+          --entry-point=main \
+          --gen2 \
+          --runtime=python310 \
+          --trigger-http \
+          --allow-unauthenticated \
+          --source=. \
+          --memory=2000MB
+
+    # - name: Notify
+    #   if: success()
+    #   uses: slackapi/slack-github-action@v1.19.0
+    #   with:
+    #     slack-bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
+    #     channels: '#deployments'
+    #     text: 'Deployment to Google Cloud Functions was successful.'
+
+    # - name: Notify
+    #   if: failure()
+    #   uses: slackapi/slack-github-action@v1.19.0
+    #   with:
+    #     slack-bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
+    #     channels: '#deployments'
+    #     text: 'Deployment to Google Cloud Functions failed.'
