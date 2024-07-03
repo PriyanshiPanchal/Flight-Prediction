@@ -52,11 +52,11 @@ jobs:
 
     - id: 'auth'
       name: 'Authenticate to Google Cloud'
-      uses: 'google-github-actions/auth@v0'
+      uses: 'google-github-actions/auth@v1'
       with:
         token_format: 'access_token'
         workload_identity_provider: 'https://iam.googleapis.com/projects/222808868980/locations/global/workloadIdentityPools/githubactions/providers/github'
-        service_account: '222808868980-compute@developer.gserviceaccount.com'
+        service_account: 'github-actions-281@fenixwork-projects.iam.gserviceaccount.com'
 
     - name: Set up gcloud CLI
       uses: google-github-actions/setup-gcloud@v1
