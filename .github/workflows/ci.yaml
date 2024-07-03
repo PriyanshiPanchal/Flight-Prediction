@@ -55,7 +55,7 @@ jobs:
       uses: 'google-github-actions/auth@v1'
       with:
         token_format: 'access_token'
-        workload_identity_provider: 'https://iam.googleapis.com/projects/222808868980/locations/global/workloadIdentityPools/githubactions/providers/github'
+        workload_identity_provider: 'projects/222808868980/locations/global/workloadIdentityPools/githubactions/providers/github'
         service_account: 'github-actions-281@fenixwork-projects.iam.gserviceaccount.com'
 
     - name: Set up gcloud CLI
