@@ -50,20 +50,22 @@ jobs:
     #     source venv/bin/activate
     #     bandit -r .
 
-    # - id: 'auth'
-    #   name: 'Authenticate to Google Cloud'
-    #   uses: 'google-github-actions/auth@v0'
-    #   with:
-    #     token_format: 'access_token'
-    #     workload_identity_provider: 'projects/123456789/locations/global/workloadIdentityPools/my-pool/providers/my-provider'
-    #     service_account: 'my-service-account@my-project.iam.gserviceaccount.com'
-
+    - id: 'auth'
+      name: 'Authenticate to Google Cloud'
+      uses: 'google-github-actions/auth@v0'
+      with:
+        token_format: 'access_token'
+        workload_identity_provider: 'https://iam.googleapis.com/projects/222808868980/locations/global/workloadIdentityPools/githubactions/providers/github'
+        service_account: '222808868980-compute@developer.gserviceaccount.com'
 
     - name: Set up gcloud CLI
       uses: google-github-actions/setup-gcloud@v1
       with:
         project_id: ${{ env.PROJECT_ID }}
         service_account_key: ${{ secrets.GCP_SA_KEY }}
+
+    - name: 'Use gcloud CLI'
+      run: 'gcloud info'
 
     - name: Activate Service Account
       run: |
