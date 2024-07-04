@@ -65,6 +65,11 @@ jobs:
         project_id: ${{ env.PROJECT_ID }}
         service_account_key: ${{ secrets.GCP_SA_KEY }}
 
+    - id: 'gcloud'
+      name: 'gcloud'
+      run: |-
+          gcloud secrets versions access "latest" --secret "my-secret"
+
     - name: 'Use gcloud CLI'
       run: 'gcloud info'
 
