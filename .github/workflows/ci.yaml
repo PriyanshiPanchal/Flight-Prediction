@@ -62,13 +62,16 @@ jobs:
     - name: Set up gcloud CLI
       uses: google-github-actions/setup-gcloud@v1
       with:
-        project_id: ${{ env.PROJECT_ID }}
+        project_id: ${{ secrets.PROJECT_ID }}
         service_account_key: ${{ secrets.GCP_SA_KEY }}
 
     # - id: 'gcloud'
     #   name: 'gcloud'
     #   run: |-
     #       gcloud secrets versions access "latest" --secret "my-secret"
+
+    - name: 'Activate Service Account'
+      run: gcloud auth activate-service-account --key-file=${{ secrets.GCP_SA_KEY }}
 
     - name: 'Use gcloud CLI'
       run: 'gcloud info'
@@ -80,8 +83,8 @@ jobs:
 
     - name: Deploy to Cloud Functions
       run: |-
-        gcloud functions deploy ${{ env.FUNCTION_NAME }} \
-          --region=${{ env.REGION }} \
+        gcloud functions deploy ${{ secrets.GCP_FUNCTION_NAME }} \
+          --region=${{ secrets.GCP_REGION }} \
           --entry-point=main \
           --gen2 \
           --runtime=python310 \
@@ -89,13 +92,7 @@ jobs:
           --allow-unauthenticated \
           --source=. \
           --memory=2000MB
-
-      env:
-          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-          REGION: ${{ secrets.GCP_REGION }}
-          FUNCTION_NAME: ${{ secrets.GCP_FUNCTION_NAME }}
-          GCP_SERVICE_ACCOUNT_KEY: ${{ secrets.GCP_SA_KEY }}
-
+      
     # - name: Notify
     #   if: success()
     #   uses: slackapi/slack-github-action@v1.19.0
