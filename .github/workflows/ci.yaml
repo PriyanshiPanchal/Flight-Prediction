@@ -38,16 +38,20 @@ jobs:
         project_id: ${{ secrets.GCP_PROJECT_ID }}
         service_account_key: ${{ secrets.GCP_SA_KEY }}
 
+    - name: 'Use gcloud CLI'
+      run: gcloud info
+
+
     - name: 'Write GCP service account key to file'
       run: |
         echo "${{ secrets.GCP_SA_KEY }}" > $HOME/gcloud-sa-key.json
 
+    - name: 'Set read permissions for the service account key file'
+      run: chmod 600 $HOME/gcloud-sa-key.json
+
     - name: 'Activate Service Account'
       run: gcloud auth activate-service-account --key-file=$HOME/gcloud-sa-key.json
-
-    - name: 'Use gcloud CLI'
-      run: gcloud info
-
+    
     - name: Deploy to Cloud Functions
       run: |-
         gcloud functions deploy ${{ secrets.GCP_FUNCTION_NAME }} \
