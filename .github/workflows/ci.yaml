@@ -49,8 +49,8 @@ jobs:
     - name: 'Set read permissions for the service account key file'
       run: chmod 600 $HOME/gcloud-sa-key.json
 
-    - name: 'Activate Service Account'
-      run: gcloud auth activate-service-account --key-file=$HOME/gcloud-sa-key.json
+    # - name: 'Activate Service Account'
+    #   run: gcloud auth activate-service-account --key-file=$HOME/gcloud-sa-key.json
     
     - name: Deploy to Cloud Functions
       run: |-
